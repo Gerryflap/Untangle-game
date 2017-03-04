@@ -17,11 +17,13 @@ public class GameCanvas extends Canvas implements MouseListener, MouseMotionList
     private Node selected = null;
     private Image buffer;
     private Graphics bufferGraphics;
+    private boolean planar;
     public static final Color NODE_BACK_SELECTED = new Color(150, 150, 230);
     public static final Color NODE_BACK_NORMAL = new Color(200, 200, 230);
     public static final Color NODE_BORDER = new Color(0,0,0);
     public static final Color EDGE = new Color(0,0,0);
     public static final Color EDGE_CROSSING = new Color(230,55,55);
+    public static final Color EDGE_VICTORY = new Color(0,100,0);
     public static final Color BACKGROUND = new Color(240,240,240);
 
 
@@ -46,6 +48,9 @@ public class GameCanvas extends Canvas implements MouseListener, MouseMotionList
         buffer = new BufferedImage(500, 500, Image.SCALE_SMOOTH);
         bufferGraphics = buffer.getGraphics();
 
+        crossing = graph.getFirstCrossingEdges();
+        planar = crossing == null;
+
     }
 
     @Override
@@ -53,14 +58,14 @@ public class GameCanvas extends Canvas implements MouseListener, MouseMotionList
         super.paint(bufferGraphics);
         bufferGraphics.setColor(BACKGROUND);
         bufferGraphics.fillRect(0,0,getWidth(), getHeight());
-        bufferGraphics.setColor(EDGE);
+        bufferGraphics.setColor(planar?EDGE_VICTORY:EDGE);
         for (Edge edge: graph.getEdges()) {
             if (crossing != null && (edge == crossing[0] || edge == crossing[1])) {
                 bufferGraphics.setColor(EDGE_CROSSING);
             }
             bufferGraphics.drawLine(edge.getFrom().getX(), edge.getFrom().getY(),
                     edge.getTo().getX(), edge.getTo().getY());
-            bufferGraphics.setColor(EDGE);
+            bufferGraphics.setColor(planar?EDGE_VICTORY:EDGE);
         }
 
         for (Node n :
@@ -104,8 +109,10 @@ public class GameCanvas extends Canvas implements MouseListener, MouseMotionList
     public void mouseReleased(MouseEvent e) {
         selected = null;
         crossing = graph.getFirstCrossingEdges();
+        planar = crossing == null;
         repaint();
-        System.out.printf("Is graph planar: %b\n", graph.isPlanar());
+        System.out.printf("Is graph planar: %b\n", planar);
+
     }
 
     @Override

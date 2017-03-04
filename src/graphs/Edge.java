@@ -55,6 +55,13 @@ public class Edge {
         }
 
 
+        double e1x1 = (e1p2.x - e1p1.x)/d;
+        double e1y1 = (e1p2.y - e1p1.y)/d;
+        double e1x1r = e1x1 * Math.cos(angle) + e1y1 * Math.sin(angle);
+        double e1y1r = e1x1 * -Math.sin(angle) + e1y1 * Math.cos(angle);
+
+        // System.out.printf("Should be (1,0), is (%f,%f)\n", e1x1r, e1y1r);
+
         double e2x1 = (e2p1.x - e1p1.x)/d;
         double e2y1 = (e2p1.y - e1p1.y)/d;
         double e2x1r = e2x1 * Math.cos(angle) + e2y1 * Math.sin(angle);
@@ -64,6 +71,18 @@ public class Edge {
         double e2y2 = (e2p2.y- e1p1.y)/d;
         double e2x2r = e2x2 * Math.cos(angle) + e2y2 * Math.sin(angle);
         double e2y2r = e2x2 * -Math.sin(angle) + e2y2 * Math.cos(angle);
+
+        if (e2x1r > e2x2r) {
+            double swap;
+
+            swap = e2x1r;
+            e2x1r = e2x2r;
+            e2x2r = swap;
+
+            swap = e2y1r;
+            e2y1r = e2y2r;
+            e2y2r = swap;
+        }
 
         // If the closest point is still out of the range 0 - 1, the lines can never cross
         if (e2x2r < 0 || e2x1r > 1) {
@@ -79,8 +98,13 @@ public class Edge {
         double b = e2y1r - a * e2x1r;
 
         // Calculate endpoints
-        double startY = Math.max(0, e2x1r) * a + b;
-        double endY = Math.min(1, e2x2r) * a + b;
+        double xStart = Math.max(0, e2x1r);
+        double xEnd = Math.min(1, e2x2r);
+
+        double startY = xStart * a + b;
+        double endY =  xEnd * a + b;
+        // System.out.printf("Start x and end x: (%f,%f)\n", xStart, xEnd);
+
         boolean su = startY > 0;
         boolean eu = endY > 0;
 
